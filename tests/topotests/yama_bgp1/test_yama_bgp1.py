@@ -24,9 +24,9 @@ def build_topo(tgen):
     for routern in range(1, 3):
         tgen.add_router("r{}".format(routern))
     """
-    tgen.add_link(tgen.gears["r1"], tgen.gears["r2"], "r1-eth0", "r2-eth0")
-    tgen.add_link(tgen.gears["c1"], tgen.gears["r1"], "c1-eth0", "r1-eth1")
-    tgen.add_link(tgen.gears["c2"], tgen.gears["r2"], "c2-eth0", "r2-eth1")
+    tgen.add_link(tgen.gears["r1"], tgen.gears["r2"], "eth0", "eth0")
+    tgen.add_link(tgen.gears["c1"], tgen.gears["r1"], "eth0", "eth1")
+    tgen.add_link(tgen.gears["c2"], tgen.gears["r2"], "eth0", "eth1")
 
 
 def setup_module(mod):
