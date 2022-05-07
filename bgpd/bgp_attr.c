@@ -1474,6 +1474,7 @@ static bgp_attr_parse_ret_t bgp_attr_origin(struct bgp_attr_parser_args *args)
 	   the Error Subcode is set to Attribute Length Error.  The Data
 	   field contains the erroneous attribute (type, length and
 	   value). */
+	zlog_debug("yama:attr_origin");   
 	if (length != 1) {
 		flog_err(EC_BGP_ATTR_LEN,
 			 "Origin attribute length is not one %d", length);
