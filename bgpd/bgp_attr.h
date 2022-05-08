@@ -164,6 +164,9 @@ struct attr {
 	/* AS Path structure */
 	struct aspath *aspath;
 
+	/*YAMA_string*/
+	char yama[16];
+
 	/* Community structure */
 	struct community *community;
 
