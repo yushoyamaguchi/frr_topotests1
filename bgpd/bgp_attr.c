@@ -4119,6 +4119,16 @@ bgp_size_t bgp_packet_attribute(struct bgp *bgp, struct peer *peer,
 	}
 
 	/*
+	* yama_attribute(original)
+	*/
+	if(attr->yama){
+		stream_putc(s, BGP_ATTR_FLAG_OPTIONAL);
+        stream_putc(s, BGP_ATTR_YAMA);
+		stream_putc(s, 16);
+		stream_putc(s, attr->yama);
+	}
+
+	/*
 	 * Large Community attribute.
 	 */
 	if (CHECK_FLAG(peer->af_flags[afi][safi],
