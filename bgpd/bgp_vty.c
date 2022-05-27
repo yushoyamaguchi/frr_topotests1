@@ -6822,6 +6822,19 @@ DEFUN (no_neighbor_timers_connect,
 	return peer_timers_connect_unset_vty(vty, argv[idx_peer]->arg);
 }
 
+
+DEFUN (yama,
+		yama_cmd,
+		"yama_filter",
+		"yama_test")
+{
+	VTY_DECLVAR_CONTEXT(bgp, bgp);
+	bgp->yama_flag=true;
+	zlog_debug("bgp->yama_flag = %d",bgp->yama_flag);
+	vty_out(vty,"yama test vty output\n");
+	return CMD_SUCCESS;
+}		
+
 DEFPY (neighbor_timers_delayopen,
        neighbor_timers_delayopen_cmd,
        "neighbor <A.B.C.D|X:X::X:X|WORD>$neighbor timers delayopen (1-240)$interval",
@@ -18921,6 +18934,8 @@ void bgp_vty_init(void)
 			&bgp_redistribute_ipv4_ospf_rmap_metric_hidden_cmd);
 	install_element(BGP_NODE,
 			&bgp_redistribute_ipv4_ospf_metric_rmap_hidden_cmd);
+	/*yama*/		
+	install_element(BGP_NODE,&yama_cmd);		
 	install_element(BGP_IPV4_NODE, &bgp_redistribute_ipv4_cmd);
 	install_element(BGP_IPV4_NODE, &no_bgp_redistribute_ipv4_cmd);
 	install_element(BGP_IPV4_NODE, &bgp_redistribute_ipv4_rmap_cmd);

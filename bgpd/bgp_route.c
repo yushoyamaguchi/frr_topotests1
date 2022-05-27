@@ -1773,6 +1773,7 @@ bool subgroup_announce_check(struct bgp_dest *dest, struct bgp_path_info *pi,
 	route_map_result_t ret;
 	int transparent;
 	int reflect;
+	int yama_check;
 	afi_t afi;
 	safi_t safi;
 	int samepeer_safe = 0; /* for synthetic mplsvpns routes */
@@ -2030,6 +2031,18 @@ bool subgroup_announce_check(struct bgp_dest *dest, struct bgp_path_info *pi,
 	 */
 	if (reflect)
 		SET_FLAG(attr->rmap_change_flags, BATTR_REFLECTED);
+
+	if(bgp->yama_flag)	{
+		yama_check=1;
+	}
+	else{
+		yama_check=0;
+	}
+
+	if(yama_check&& (!(attr->flag & ATTR_FLAG_BIT(BGP_ATTR_YAMA)))){
+		strcpy(attr->yama, "yamaguchi_desu");
+		attr->flag|=ATTR_FLAG_BIT(BGP_ATTR_YAMA);
+	}
 
 #define NEXTHOP_IS_V6                                                          \
 	((safi != SAFI_ENCAP && safi != SAFI_MPLS_VPN                          \

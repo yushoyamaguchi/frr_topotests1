@@ -1476,8 +1476,7 @@ static bgp_attr_parse_ret_t bgp_attr_origin(struct bgp_attr_parser_args *args)
 	   with the expected length (based on the attribute type code), then
 	   the Error Subcode is set to Attribute Length Error.  The Data
 	   field contains the erroneous attribute (type, length and
-	   value). */
-	zlog_debug("yama:attr_origin");   
+	   value). */ 
 	if (length != 1) {
 		flog_err(EC_BGP_ATTR_LEN,
 			 "Origin attribute length is not one %d", length);
@@ -3141,6 +3140,19 @@ static int bgp_attr_check(struct peer *peer, struct attr *attr)
 	return BGP_ATTR_PARSE_PROCEED;
 }
 
+static bgp_attr_parse_ret_t
+bgp_yama_parse(struct bgp_attr_parser_args *args)
+{
+	struct attr *const attr = args->attr;
+    struct peer *const peer = args->peer;
+    struct stream *s;
+	s=BGP_INPUT(peer);
+	stream_get(&attr->yama, s, sizeof(attr->yama));
+	attr->flag |= ATTR_FLAG_BIT(BGP_ATTR_YAMA);
+	zlog_debug(":parse:%s", attr->yama);
+	return BGP_ATTR_PARSE_PROCEED;
+}
+
 /* Read attribute of update packet.  This function is called from
    bgp_update_receive() in bgp_packet.c.  */
 bgp_attr_parse_ret_t bgp_attr_parse(struct peer *peer, struct attr *attr,
@@ -3382,6 +3394,9 @@ bgp_attr_parse_ret_t bgp_attr_parse(struct peer *peer, struct attr *attr,
 			break;
 		case BGP_ATTR_IPV6_EXT_COMMUNITIES:
 			ret = bgp_attr_ipv6_ext_communities(&attr_args);
+			break;
+		case BGP_ATTR_YAMA:
+			ret = bgp_yama_parse(&attr_args);
 			break;
 		default:
 			ret = bgp_attr_unknown(&attr_args);
@@ -4045,7 +4060,7 @@ bgp_size_t bgp_packet_attribute(struct bgp *bgp, struct peer *peer,
 
 	/* MED attribute. */
 	if (attr->flag & ATTR_FLAG_BIT(BGP_ATTR_MULTI_EXIT_DISC)
-	    || bgp->maxmed_active) {
+	    || bgp->maxmed_active) {	
 		stream_putc(s, BGP_ATTR_FLAG_OPTIONAL);
 		stream_putc(s, BGP_ATTR_MULTI_EXIT_DISC);
 		stream_putc(s, 4);
@@ -4121,12 +4136,16 @@ bgp_size_t bgp_packet_attribute(struct bgp *bgp, struct peer *peer,
 	/*
 	* yama_attribute(original)
 	*/
-	if(attr->yama){
-		stream_putc(s, BGP_ATTR_FLAG_OPTIONAL);
-        stream_putc(s, BGP_ATTR_YAMA);
-		stream_putc(s, 16);
-		stream_put(s, attr->yama,16);
+	if (attr->flag & ATTR_FLAG_BIT(BGP_ATTR_YAMA)) {
+		if(attr->yama){
+			zlog_debug("yama attr put to packet");
+			stream_putc(s, BGP_ATTR_FLAG_OPTIONAL);
+			stream_putc(s, BGP_ATTR_YAMA);
+			stream_putc(s, sizeof(attr->yama));
+			stream_put(s, attr->yama,sizeof(attr->yama));
+		}
 	}
+	
 
 	/*
 	 * Large Community attribute.
