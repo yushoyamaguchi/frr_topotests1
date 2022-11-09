@@ -1,1 +1,14 @@
 sudo -E pytest -s --topology-only test_yama_bgp1.py
+
+
+ps aux | grep /bin/cat
+
+sudo nsenter -t 'PID' -a bash --norc
+
+tcpdump -w ~/yusho/yama_test.pcap
+
+
+
+docker exec -it R1 tcpdump -nni net0
+
+docker exec -it R1 vtysh -c 'clear bgp *'
